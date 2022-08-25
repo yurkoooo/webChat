@@ -10,14 +10,14 @@ export default function AppRouter () {
      return user ? 
     (
         <Routes>
-            <Route exact path='/chat' element={<Chat />} />
+            <Route exact path={CHAT_ROUTE} element={<Chat />} />
             <Route path='*' element={<Navigate to={CHAT_ROUTE} replace />}/>
         </Routes>
     )
     :
     (
         <Routes>
-            <Route exact path='/login' element={<Login />} /> 
+            <Route exact path={LOGIN_ROUTE} element={<Login />} /> 
             <Route path='*' element={<Navigate to={LOGIN_ROUTE} replace />} />
         </Routes>
     )

@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
@@ -7,8 +7,10 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
+
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBOK7x5N5UnjY4TDqndzH7l5tvdNIsWFRc",
+  apiKey: "AIzaSyDNm4nFnVP6VORHbAMsoOWeIFxqkkKW3iQ",
   authDomain: "todo-app-e3cf0.firebaseapp.com",
   projectId: "todo-app-e3cf0",
   storageBucket: "todo-app-e3cf0.appspot.com",
@@ -17,7 +19,7 @@ const firebaseConfig = {
   measurementId: "G-JHPC7TP12K"
 };
 
-export const MyContext = createContext(null);
+
 
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const firestore = firebaseApp.firestore();
@@ -27,12 +29,6 @@ const auth = firebase.auth();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <MyContext.Provider value={{
-      firebase,
-      auth,
-      firestore,
-    }}>
-    </MyContext.Provider>
     <App />
   </React.StrictMode>
 );

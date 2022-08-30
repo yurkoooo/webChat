@@ -11,7 +11,6 @@ export default function Chat () {
     const [currentChat, setCurrentChat] = useState([]);
     const [currentImg, setCurrentImg] = useState('');
     const [currentContact, setCurrentContact] = useState('');
-    const [lastMessage, setLastMessage] = useState('');
     const [value, setValue] = useState([]);
     const [count, setCount] = useState(1);
 
@@ -112,9 +111,18 @@ export default function Chat () {
             .then(data => currentChat.add({
             contactMessage: data.value,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }));
+            }
+        ));
             setValue('');
         }
+        const fetchChat = async () => {
+            const request = await firebaseApp.firestore().collection(`${currentContact}`).orderBy("timestamp", "asc").get();
+            const result = request.docs.map(doc => doc.data());
+            setCurrentChat(result);
+            console.log(result);
+        }
+        fetchChat();
+        setTimeout(fetchChat, 10000);
     }
 
 
@@ -148,7 +156,7 @@ export default function Chat () {
             </div>
             <div className='chat'>
             <div className='chat__contact'>
-                <img src={currentImg} style={{display: 'none'}} className='contactImg'/>
+                <img src={currentImg} alt='person' style={{display: 'none'}} className='contactImg'/>
                 <h2 ref={currentUserRef}>{currentContact}</h2>
             </div>
             <div className='chat__messages'>

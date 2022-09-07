@@ -98,7 +98,7 @@ body {
 }
 
 .messageWrapper:first-child {
-    margin-top: 140px;
+    margin-top: 155px;
 }
 
 .messageWrapper:last-child {
@@ -107,13 +107,28 @@ body {
 
 .chat__contact {
     display: flex;
-    align-items: center;
     background: rgb(240,240,240);
     border: 1px solid rgb(224,224,224);
     padding: 20px 10px;
     position: fixed;
     top: 0;
     width: 80vw;
+    flex-direction: column;
+}
+
+.chat__contact p {
+    animation: flash;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    padding-left: 15px;
+}
+
+
+.chat__person {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 .chat__contact img {

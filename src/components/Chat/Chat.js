@@ -19,6 +19,7 @@ export default function Chat () {
     const currentUserRef = useRef();
     const lastMessageRef = useRef();
     const sendMessageRef = useRef();
+    const userTypingRef = useRef();
 
 
     // get contacts from firebase
@@ -123,6 +124,8 @@ export default function Chat () {
         }
         fetchChat();
         setTimeout(fetchChat, 10000);
+        userTypingRef.current.style.display = 'block';
+        setTimeout(() => userTypingRef.current.style.display = 'none', 10000)
     }
 
 
@@ -156,25 +159,28 @@ export default function Chat () {
             </div>
             <div className='chat'>
             <div className='chat__contact'>
-                <img src={currentImg} alt='person' style={{display: 'none'}} className='contactImg'/>
-                <h2 ref={currentUserRef}>{currentContact}</h2>
+                <div className='chat__person'>
+                    <img src={currentImg} alt='person' style={{display: 'none'}} className='contactImg'/>
+                    <h2 ref={currentUserRef}>{currentContact}</h2>
+                </div>
+                <p style={{display : 'none'}} ref={userTypingRef}>{currentContact} is typing...</p>
             </div>
             <div className='chat__messages'>
                 {currentChat.map(item => {
-                    if(item.myMessage) {
+                    if(item.contactMessage && item.timestamp !== null) {
+                        return <div className="messageWrapper contact">
+                            <div className='chat__contactMessage'>
+                                <p>{item.contactMessage}</p>
+                            </div>
+                             <p>{JSON.stringify(new Date(item.timestamp.seconds * 1000)).replace(/['"]+/g, '')}</p>    
+                        </div>
+                    } 
+                    else if (item.myMessage && item.timestamp !== null) {
                         return <div className='messageWrapper my'>
                             <div className='chat__myMessage'>
                                 <p>{item.myMessage}</p>
                             </div>
                             <p className='time'>{JSON.stringify(new Date(item.timestamp.seconds * 1000)).replace(/['"]+/g, '')}</p>
-                        </div>
-                    } 
-                    else {
-                        return <div className="messageWrapper contact">
-                            <div className='chat__contactMessage'>
-                                <p>{item.contactMessage}</p>
-                            </div>
-                            <p>{JSON.stringify(new Date(item.timestamp.seconds * 1000)).replace(/['"]+/g, '')}</p>
                         </div>
                     }
                 })}

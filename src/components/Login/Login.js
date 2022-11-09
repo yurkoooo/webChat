@@ -3,16 +3,23 @@ import 'animate.css'
 import './Login.css'
 
 import React from 'react';
-import {firebaseApp, auth} from '../../firebase/config';
-import firebase from 'firebase/app'
+import {auth} from '../../firebase/config';
+import firebase from 'firebase/compat/app'
 
-export default function Login () {
+export default function Login ({setUser, setAbout}) {
 
     // sign in with google provider
 
     const signInWithGoogle = () => {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider);
+        auth.signInWithPopup(provider)
+        .then((res) => {
+            setAbout([res.additionalUserInfo.profile]);
+            setUser(true);
+        })
+        .then((err) => {
+            console.log(err);
+        })
       }
 
 

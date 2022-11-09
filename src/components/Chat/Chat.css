@@ -1,7 +1,6 @@
 
 @import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 
-
 body {
     overflow-y: hidden;
 }
@@ -15,6 +14,7 @@ body {
     height: 100vh;
     background: white;
     overflow-y: scroll;
+    padding: 0;
 }
 
 .navbar::-webkit-scrollbar {
@@ -33,6 +33,7 @@ body {
     background: rgb(240,240,240);
     border: 1px solid rgb(224,224,224);
     padding: 20px 10px;
+    width: 100%;
 }
 
 .navbar__main input {
@@ -48,7 +49,6 @@ body {
 
 .navbar__account {
     display: flex;
-    align-items: center;
 }
 
 .navbar__account img {
@@ -56,8 +56,24 @@ body {
     width: 55px;
 }
 
+.navbar__name {
+    font-size: 20px;
+    margin-bottom: 0;
+}
+
+.navbar__email {
+    font-size: 14px;
+}
+
+.navbar__leave {
+    margin-left: 15px;
+    width: 30%;
+    height: 50px;
+}
+
 .navbar__chats {
     border: 1px solid rgb(224,224,224);
+    width: 100%;
 }
 
 .fontAwesome {
@@ -84,6 +100,14 @@ body {
     cursor: pointer;
     min-height: 150px;
     transition: 0.3s ease-in-out;
+}
+
+.navbar__contacts h2 {
+    font-size: 20px;
+}
+
+.navbar__contacts p {
+    font-size: 15px;
 }
 
 .lastMessage {
@@ -220,5 +244,25 @@ body {
     padding: 10px;
 }
 
+.startChat {
+    text-align: center;
+    margin-top: 250px;
+    font-family: QuickSand, sans-serif;
+}
 
+.spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 95vh;
+}
+
+.spinner-border {
+    width: 40px;
+    height: 40px;
+}
+
+.lastMessageTime {
+    width: 80px;
+}
 

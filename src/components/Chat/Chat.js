@@ -1,13 +1,17 @@
 import './Chat.css'
 import React, {useEffect, useRef, useState} from 'react';
 import {firestore, firebaseApp} from '../../firebase/config';
-import firebase from 'firebase/app';
+import firebase from 'firebase/compat/app';
+import Spinner from 'react-bootstrap/Spinner';
 
-export default function Chat () {
+export default function Chat ({about, setUser}) {
     
     // states
 
     const [contacts, setContacts] =  useState([]);
+    const [loading, setLoading] = useState(false);
+    const [lastMessage, setLastMessage] = useState([]);
+    const [startChat, setStartChat] = useState(false);
     const [currentChat, setCurrentChat] = useState([]);
     const [currentImg, setCurrentImg] = useState('');
     const [currentContact, setCurrentContact] = useState('');
@@ -28,17 +32,30 @@ export default function Chat () {
         const request = await firebaseApp.firestore().collection('contacts').get()
         const result = request.docs.map(doc => doc.data());
         setContacts(result);
+        setLoading(true);
     }
 
     useEffect( () => {
-        fetchContacts();
-        console.log('render');
+        fetchContacts();        
     }, [])
 
     useEffect(() => {
+        if (contacts.length > 1) {
+            for (let i = 0; i < contacts.length; i++) {
+                const getLastMessage = async () => {
+                    const request = await firebaseApp.firestore().collection(`${contacts[i].name}`).orderBy("timestamp", "desc").limit(1).get();
+                    const result = request.docs.map(doc => doc.data());
+                    setLastMessage(current => [...current, [...result, contacts[i].name]]);
+                }
+                getLastMessage();
+            }
+        }
+    }, [contacts])
+
+    useEffect(() => {
         lastMessageRef.current?.scrollIntoView();
+        console.log(lastMessage);
     })
-    
 
     // search contacts
 
@@ -94,6 +111,7 @@ export default function Chat () {
                 item.style.borderRadius = 0;
             }
         })
+        setStartChat(true);
     }
 
     // send message to chat (firebase) and get fetch response from chuck norris api 
@@ -128,15 +146,35 @@ export default function Chat () {
         setTimeout(() => userTypingRef.current.style.display = 'none', 10000)
     }
 
+    const leave = () => {
+        setUser(false);
+    }
+
 
     return (
+        <>
+        {loading ?
         <>
         <div className='parent'>
             <div className="navbar">
                 <div className="navbar__main">
                     <div className="navbar__account">
-                        <img src="account.png" alt=""/>
-                        <p>Hello, Guest!</p>
+                        {about !== undefined ?
+                            <>
+                            {about.map(item => (
+                                <>
+                                <img src={item.picture} alt=""/>
+                                <div>
+                                    <p className='navbar__name'>{item.name}</p>
+                                    <p className='navbar__email'>{item.email}</p>
+                                </div>
+                                </>
+                            ))}
+                            </>
+                            : 
+                            null
+                        }
+                        <button className='navbar__leave' onClick={leave}>Leave</button>
                     </div>
                     <input type="text" placeholder="&#xf002;   Search or start new chat" className='fontAwesome' onKeyUp={searchContact}/>
                 </div>
@@ -146,33 +184,41 @@ export default function Chat () {
                         {contacts.map(item => (
                             <div className="navbar__contacts" onClick={showChat}>
                                 <img src={item.img} alt='person'/>
-                                <div>
-                                    <h2>{item.name}</h2>
-                                    
-                                    <p className='lastMessage'>Hi, bro!</p>
-                                </div>
-                                <p>Jun 12, 2017</p>
+                                    {console.log(item.name)}
+                                    {lastMessage.map(elem => (
+                                        item.name == elem[1] ? 
+                                        <>
+                                        <div>
+                                        <h2>{item.name}</h2>
+                                        <p className='lastMessage'>{elem[0].contactMessage.slice(0, 50)}...</p>
+                                        </div>
+                                        <p className='lastMessageTime'>{new Date(JSON.stringify(new Date(elem[0].timestamp.seconds * 1000)).replace(/['"]+/g, '')).toString().slice(0, 25)}</p>
+                                        </>
+                                        :
+                                        console.log(elem)
+                                    ))}
                             </div>
                         ))}
                     </div>    
                 </div>
             </div>
             <div className='chat'>
-            <div className='chat__contact'>
-                <div className='chat__person'>
-                    <img src={currentImg} alt='person' style={{display: 'none'}} className='contactImg'/>
-                    <h2 ref={currentUserRef}>{currentContact}</h2>
+                <div className='chat__contact'>
+                    <div className='chat__person'>
+                        <img src={currentImg} alt='person' style={{display: 'none'}} className='contactImg'/>
+                        <h2 ref={currentUserRef}>{currentContact}</h2>
+                    </div>
+                    <p style={{display : 'none'}} ref={userTypingRef}>{currentContact} is typing...</p>
                 </div>
-                <p style={{display : 'none'}} ref={userTypingRef}>{currentContact} is typing...</p>
-            </div>
-            <div className='chat__messages'>
+                <div className='chat__messages'>
+                {startChat ? null : <h2 className='startChat'>Start chat with your friend!</h2>}
                 {currentChat.map(item => {
                     if(item.contactMessage && item.timestamp !== null) {
                         return <div className="messageWrapper contact">
                             <div className='chat__contactMessage'>
                                 <p>{item.contactMessage}</p>
                             </div>
-                             <p>{JSON.stringify(new Date(item.timestamp.seconds * 1000)).replace(/['"]+/g, '')}</p>    
+                                <p>{new Date(JSON.stringify(new Date(item.timestamp.seconds * 1000)).replace(/['"]+/g, '')).toString().slice(0, 25)}</p>    
                         </div>
                     } 
                     else if (item.myMessage && item.timestamp !== null) {
@@ -180,13 +226,13 @@ export default function Chat () {
                             <div className='chat__myMessage'>
                                 <p>{item.myMessage}</p>
                             </div>
-                            <p className='time'>{JSON.stringify(new Date(item.timestamp.seconds * 1000)).replace(/['"]+/g, '')}</p>
+                            <p className='time'>{new Date(JSON.stringify(new Date(item.timestamp.seconds * 1000)).replace(/['"]+/g, '')).toString().slice(0, 25)}</p>
                         </div>
                     }
                 })}
-            </div>
-            <div ref={lastMessageRef}/>
-            <form action="#" className='chat__send' onSubmit={sendMessage}>
+                </div>
+                <div ref={lastMessageRef}/>
+                <form action="#" className='chat__send' onSubmit={sendMessage}>
                 <input
                 type="text"
                 placeholder="Type your message" 
@@ -195,9 +241,14 @@ export default function Chat () {
                 ref={sendMessageRef}
                 />
                 <button className='	fa fa-paper-plane'></button>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
+        </>
+        :   <div className='spinner'>
+                <Spinner animation="border"/>
+            </div>
+        }
     </>
     )
 }
